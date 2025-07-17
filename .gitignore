@@ -194,3 +194,11 @@ cython_debug/
 #  refer to https://docs.cursor.com/context/ignore-files
 .cursorignore
 .cursorindexingignore
+
+csv_files
+eval_data_membrane
+compare_data
+231097R3_HE02
+colored_data
+Data
+test.py

@@ -32,7 +32,9 @@ def imread(image_path_list:list) -> list:
 
     image_list = []
     for image_path in image_path_list:
-        image_list.append([cv2.imread(image_path, cv2.IMREAD_COLOR_RGB), image_path])
+        img = cv2.imread(image_path, cv2.IMREAD_COLOR)  # BGRで読み込み
+        img_rgb = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)  # RGBに変換
+        image_list.append([img_rgb, image_path])
         # print(image_path)  # デバッグ用
     return image_list
 
@@ -58,8 +60,12 @@ def main(image_path:str, output_path:str, new_color:tuple) -> None:
     height, width, _ = image_list[0][0].shape
 
     for image, file_path in image_list:
-        # NumPy配列で白色画素のマスクを作成
+        if image is None:
+            print(f"画像の読み込みに失敗: {file_path}")
+            continue
+        print(f"ファイル: {file_path}, shape: {image.shape}, dtype: {image.dtype}")
         white_mask = np.all(image == [255, 255, 255], axis=-1)
+        print(f"白色ピクセル数: {np.sum(white_mask)}")
         # 白色画素をnew_colorに一括変換
         image[white_mask] = new_color
         # パスを正規化して区切る
@@ -70,16 +76,16 @@ def main(image_path:str, output_path:str, new_color:tuple) -> None:
         save_path = os.path.join(output_path, *last_five)
         # ディレクトリがなければ作成
         os.makedirs(os.path.dirname(save_path), exist_ok=True)
-        # 画像を書き出し
-        cv2.imwrite(save_path, image)
+        # 保存時にBGRに変換
+        cv2.imwrite(save_path, cv2.cvtColor(image, cv2.COLOR_RGB2BGR))
     
     return
 
 # スクリプトとして実行された場合の処理
 if __name__ == "__main__":
-    image_path = './test'
-    output_path = './out'
-    new_color = (255, 0, 255)  # 変換後の色（例：マゼンタ）
+    image_path = './compare_data/membrane/'
+    output_path = './colored_data/'
+    new_color = (0, 255, 255)  # 変換後の色（例：マゼンタ）
 
     main(image_path, output_path, new_color)
     
